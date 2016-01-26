@@ -1,0 +1,6 @@
+./*.o
+./*.dep
+
+webserver/*.o
+webserver/*.dep
+

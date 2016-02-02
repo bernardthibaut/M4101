@@ -1,0 +1,9 @@
+1. bind socket_serveur: Address already in use
+   accept socket_serveur: Bad file descriptor
+
+2. Le serveur s'éteint.
+
+3. Trying ::1...
+   telnet: Unable to connect to remote host: Connection refused
+
+4. Le deuxième client attend que le premier soit fermé. Pour fermer un client, il faut utiliser la commande "/exit". Une fois le premier client fermé, le second reçoit le message de bienvenue et peut converser avec le serveur.

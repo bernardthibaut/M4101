@@ -3,4 +3,5 @@
 
 webserver/*.o
 webserver/*.dep
+webserver/swanson
 

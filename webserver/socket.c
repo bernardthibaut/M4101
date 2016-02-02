@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 int creer_serveur(int port)
 {
@@ -20,7 +21,7 @@ int creer_serveur(int port)
 	saddr.sin_addr.s_addr = INADDR_ANY;
 	if(bind(socket_serveur, (struct sockaddr *)&saddr, sizeof(saddr)) == -1)
 	{
-		perror ("bind socket_serveur");
+		perror("bind socket_serveur");
 		return -1;
 	}
 
@@ -30,11 +31,5 @@ int creer_serveur(int port)
 		return -1;
 	}
 
-	if(close(socket_serveur) == -1)
-	{
-		perror("close socket_serveur");
-		return -1;
-	}
-
-	return 0;
+	return socket_serveur;
 }

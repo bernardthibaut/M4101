@@ -23,34 +23,47 @@ int main(void)
 			return -1;
 		}
 
-		const char * message_bienvenue = "She's here. I can smell it\n" ;
-		sleep(1);
-		int i;
-		for(i = 0; i<10; i++)
-		{
-			write(socket_client, message_bienvenue, strlen(message_bienvenue));
-		}
 
-		int client_ecoute = 1;
-		while(client_ecoute == 1)
+		const char * message_bienvenue = "She's here. I can smell it\n" ;
+
+		if(fork() == 0)
 		{
-			char * buffer = malloc(256);
-			if(read(socket_client, buffer, sizeof(buffer)) == -1)
+			sleep(1);
+			int i;
+			for(i = 0; i<10; i++)
 			{
-				perror("read");
-				return -1;
+				write(socket_client, message_bienvenue, strlen(message_bienvenue));
 			}
-			if(strncmp("/exit", buffer, 5) == 0)
+
+			int client_ecoute = 1;
+			while(client_ecoute == 1)
 			{
-				client_ecoute = 0;
-				if(close(socket_client) == -1)
+				char * buffer = malloc(256);
+				if(read(socket_client, buffer, sizeof(buffer)) == -1)
 				{
-					perror("close socket_client");
+					perror("read");
 					return -1;
 				}
+				if(strncmp("/exit", buffer, 5) == 0)
+				{
+					client_ecoute = 0;
+					if(close(socket_client) == -1)
+					{
+						perror("close socket_client");
+						return -1;
+					}
+				}
+				else {
+					write(socket_client, buffer, sizeof(buffer));
+				}
 			}
-			else {
-				write(socket_client, buffer, sizeof(buffer));
+		} 
+		else
+		{
+			if(close(socket_client) == -1)
+			{
+				perror("close socket_client");
+				return -1;
 			}
 		}
 	}

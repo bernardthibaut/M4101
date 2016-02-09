@@ -14,6 +14,7 @@ int main(void)
 
 	while(1) 
 	{
+
 		int socket_client;
 		socket_client = accept(socket_serveur, NULL ,NULL);
 		if (socket_client == -1)

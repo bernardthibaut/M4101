@@ -12,14 +12,13 @@ void initialiser_signaux(void)
 	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	{
 		perror("signal");
-		exit(1);
 	}
 }
 
 int creer_serveur(int port)
 {
 
-	//initialiser_signaux();
+	initialiser_signaux();
 
 	int socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
 

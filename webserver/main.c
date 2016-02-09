@@ -4,6 +4,25 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <signal.h>
+
+
+void traitement_signal(int sig)
+{
+	printf ("Signal %d reçu \n" , sig);
+}
+
+/*void initialiser_signaux(void)
+{
+	struct sigaction sa;
+	sa.sa_handler = traitement_signal;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	{
+		perror("sigaction(SIGCHLD)");
+	}
+}*/
+
 
 int main(void)
 {
@@ -12,7 +31,7 @@ int main(void)
 
 	int socket_serveur = creer_serveur(8080);
 
-	while(1) 
+	while(1)
 	{
 
 		int socket_client;

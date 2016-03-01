@@ -36,28 +36,13 @@ int main(void)
 				write(socket_client, message_bienvenue, strlen(message_bienvenue));
 			}
 
-			int client_ecoute = 1;
-			while(client_ecoute == 1)
-			{
-				char * buffer = malloc(256);
-				if(read(socket_client, buffer, sizeof(buffer)) == -1)
-				{
-					perror("read");
-					return -1;
-				}
-				if(strncmp("/exit", buffer, 5) == 0)
-				{
-					client_ecoute = 0;
-					if(close(socket_client) == -1)
-					{
-						perror("close socket_client");
-						return -1;
-					}
-				}
-				else {
-					write(socket_client, buffer, sizeof(buffer));
-				}
+			int taille = 256 * sizeof(char);
+			char * buffer = malloc(taille);
+			FILE * socket_client_file = fdopen(socket_client, "w+");
+			while(fgets(buffer, taille, socket_client_file) != '\0') {
+				fprintf(socket_client_file, "%s %s", "<Swanson>", buffer);
 			}
+			
 		} 
 		else
 		{

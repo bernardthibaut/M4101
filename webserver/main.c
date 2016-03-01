@@ -40,7 +40,7 @@ int main(void)
 			char * buffer = malloc(taille);
 			FILE * socket_client_file = fdopen(socket_client, "w+");
 			while(fgets(buffer, taille, socket_client_file) != '\0') {
-				fprintf(socket_client_file, "%s %s", "<Swanson>", buffer);
+				printf("<%d> %s", getpid(), buffer);
 			}
 			
 		} 

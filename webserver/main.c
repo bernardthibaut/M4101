@@ -98,6 +98,13 @@ int checkURL(char * ligne){
 	return 0;
 }
 
+char * fgets_or_exit(char * buffer, int size, FILE * stream) {
+	if(fgets(buffer, size, stream) == NULL) {
+		exit(1);
+	}
+	return buffer;
+}
+
 int main(void)
 {
 
@@ -125,13 +132,16 @@ int main(void)
 			int taille = 256 * sizeof(char);
 			char * buffer = malloc(taille);
 			FILE * socket_client_file = fdopen(socket_client, "w+");
-			fgets(buffer, taille, socket_client_file);
+			//FILE * socket_serveur_file = fdopen(socket_serveur, "w+");
+			fgets_or_exit(buffer, taille, socket_client_file);
 
 			int lignesPresentes = 0;
 			int wrongURL = 0;
 
-			while(strcmp(buffer, "\n") != 0)
+			while(strcmp(buffer, "\n") != 0 && strcmp(buffer, "\r\n") != 0)
 			{
+				printf(buffer);
+				//fprintf(socket_serveur_file, buffer);
 				if(lignesPresentes == 0 && checkGet(buffer) == 0){
 					if(checkURL(buffer) != 0){
 						wrongURL = 1;
@@ -141,7 +151,8 @@ int main(void)
 				if(lignesPresentes == 1 && checkHost(buffer) == 0){
 					lignesPresentes++;
 				}
-				fgets(buffer, taille, socket_client_file);
+				
+				fgets_or_exit(buffer, taille, socket_client_file);
 			}
 
 			if(lignesPresentes != 2) {
@@ -162,7 +173,7 @@ int main(void)
 				return -1;
 			}
 
-			fprintf(socket_client_file, "HTTP/1.1 200 OK\r\n");
+			fprintf(socket_client_file, "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 2\r\n\r\nOk\r\n");
 			sleep(1);
 			int i;
 			for(i = 0; i<10; i++)
@@ -171,7 +182,7 @@ int main(void)
 			}
 
 			printf("<%d> %s", getpid(), buffer);
-			while(fgets(buffer, taille, socket_client_file) != NULL) {
+			while(fgets_or_exit(buffer, taille, socket_client_file) != NULL) {
 				printf("<%d> %s", getpid(), buffer);
 			}
 			

@@ -83,6 +83,21 @@ int checkHost(char* ligne) {
 	return 0;
 }
 
+int checkURL(char * ligne){
+	char * buffer = malloc(6 * sizeof(char));
+	int i;
+	for (i = 0; i < 6; ++i)
+	{
+		buffer[i] = ligne[i];
+	}
+
+	if(strcmp(buffer, "GET / ") != 0) 
+	{
+		return -1;
+	}
+	return 0;
+}
+
 int main(void)
 {
 
@@ -113,10 +128,14 @@ int main(void)
 			fgets(buffer, taille, socket_client_file);
 
 			int lignesPresentes = 0;
+			int wrongURL = 0;
 
 			while(strcmp(buffer, "\n") != 0)
 			{
 				if(lignesPresentes == 0 && checkGet(buffer) == 0){
+					if(checkURL(buffer) != 0){
+						wrongURL = 1;
+					}
 					lignesPresentes++;
 				}
 				if(lignesPresentes == 1 && checkHost(buffer) == 0){
@@ -131,6 +150,15 @@ int main(void)
 				fprintf(socket_client_file, "Content-Length: 17\r\n");
 				fprintf(socket_client_file, "\r\n");
 				fprintf(socket_client_file, "400 Bad request\r\n");
+				return -1;
+			}
+
+			if(wrongURL != 0){
+				fprintf(socket_client_file, "HTTP/1.1 404 URL Not Found\r\n");
+				fprintf(socket_client_file, "Connection: close\r\n");
+				fprintf(socket_client_file, "Content-Length: 17\r\n");
+				fprintf(socket_client_file, "\r\n");
+				fprintf(socket_client_file, "404 URL Not Found\r\n");
 				return -1;
 			}
 

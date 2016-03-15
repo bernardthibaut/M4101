@@ -26,13 +26,13 @@ int words(char * ligne)
 	return counted;
 }
 
-int checkPremiereLigne(char* premiereLigne)
+int checkGet(char* ligne)
 {
 	char * buffer = malloc(4 * sizeof(char));
 	int i;
 	for (i = 0; i < 4; ++i)
 	{
-		buffer[i] = premiereLigne[i];
+		buffer[i] = ligne[i];
 	}
 
 	if(strcmp(buffer, "GET ") != 0) 
@@ -40,21 +40,42 @@ int checkPremiereLigne(char* premiereLigne)
 		return -1;
 	}
 
-	if(words(premiereLigne) != 3)
+	if(words(ligne) != 3)
 	{
 		return -1;
 	}
 
-	char * troisiemeMot = strstr(premiereLigne, "HTTP/");
-	int position = troisiemeMot - premiereLigne;
+	char * troisiemeMot = strstr(ligne, "HTTP/");
+	int position = troisiemeMot - ligne;
 
 	buffer = realloc(buffer, 8 * sizeof(char));
 	for(i = 0; i < 8; i++) 
 	{
-		buffer[i] = premiereLigne[i + position];
+		buffer[i] = ligne[i + position];
 	}
 
 	if(strcmp(buffer, "HTTP/1.0") != 0 && strcmp(buffer, "HTTP/1.1") != 0)
+	{
+		return -1;
+	}
+
+	return 0;
+}
+
+int checkHost(char* ligne) {
+	char * buffer = malloc(6 * sizeof(char));
+	int i;
+	for (i = 0; i < 6; ++i)
+	{
+		buffer[i] = ligne[i];
+	}
+
+	if(strcmp(buffer, "Host: ") != 0) 
+	{
+		return -1;
+	}
+
+	if(words(ligne) != 2)
 	{
 		return -1;
 	}
@@ -91,27 +112,34 @@ int main(void)
 			FILE * socket_client_file = fdopen(socket_client, "w+");
 			fgets(buffer, taille, socket_client_file);
 
-			while(strcmp(buffer, "\n") == 0)
+			int lignesPresentes = 0;
+
+			while(strcmp(buffer, "\n") != 0)
 			{
-				write(socket_client, "Chaine vide, try again\n", strlen("Chaine vide, try again\n"));
+				if(lignesPresentes == 0 && checkGet(buffer) == 0){
+					lignesPresentes++;
+				}
+				if(lignesPresentes == 1 && checkHost(buffer) == 0){
+					lignesPresentes++;
+				}
 				fgets(buffer, taille, socket_client_file);
 			}
 
-			if(checkPremiereLigne(buffer) != 0) {
-				write(socket_client, "HTTP/1.1 400 Bad Request\r\n", strlen("HTTP/1.1 400 Bad Request\r\n"));
-				write(socket_client, "Connection: close\r\n", strlen("Connection: close\r\n"));
-				write(socket_client, "Content-Length: 17\r\n", strlen("Content-Length: 17\r\n"));
-				write(socket_client, "\r\n", strlen("\r\n"));
-				write(socket_client, "400 Bad request\r\n", strlen("400 Bad request\r\n"));
+			if(lignesPresentes != 2) {
+				fprintf(socket_client_file, "HTTP/1.1 400 Bad Request\r\n");
+				fprintf(socket_client_file, "Connection: close\r\n");
+				fprintf(socket_client_file, "Content-Length: 17\r\n");
+				fprintf(socket_client_file, "\r\n");
+				fprintf(socket_client_file, "400 Bad request\r\n");
 				return -1;
 			}
 
-			write(socket_client, "HTTP/1.1 200 OK\r\n", strlen("HTTP/1.1 200 OK\r\n"));
+			fprintf(socket_client_file, "HTTP/1.1 200 OK\r\n");
 			sleep(1);
 			int i;
 			for(i = 0; i<10; i++)
 			{
-				write(socket_client, message_bienvenue, strlen(message_bienvenue));
+				fprintf(socket_client_file, message_bienvenue);
 			}
 
 			printf("<%d> %s", getpid(), buffer);
